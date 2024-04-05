@@ -1,60 +1,38 @@
-/*
-found  at  https://www.arduino.cc/en/Tutorial/MKRGSMExamplesSendSMS  on  nov  21  2023
-17786778010
-*/
 
-/*
-  SMS  sender
-  This  sketch,  for  the  MKR  GSM  1400  board,sends  an  SMS  message
-  you  enter  in  the  serial  monitor.  Connect  your  Arduino  with  the
-  GSM  shield  and  SIM  card,  open  the  serial  monitor,  and  wait  for
-  the  "READY"  message  to  appear  in  the  monitor.  Next,  type  a
-  message  to  send  and  press  "return".  Make  sure  the  serial
-  monitor  is  set  to  send  a  newline  when  you  press  return.
-  Circuit:
-  *  MKR  GSM  1400  board
-  *  Antenna
-  *  SIM  card  that  can  send  SMS
-  created  25  Feb  2012
-  by  Tom  Igoe
-*/
+/*******************************TODO***************************************************
+Error handling
+go over it and reformat code
+saying if message is invalid or too long
+sms flush / board memeory/ cache wiping (or if that even needs to happen)
+figure error correction of ultrasonic reading to make sure its accurate/consistent
 
-/*
-TODO:
-    give option to get x amount of counts maybe
-    make sure that message is being deleted to conserve memory space
-    modularize the code and get functions into functions.ino
-    think of ways it could break and make try catch or exceptions for them
-    review setup and loop and make sure they are doing what they should be doing and modify them per above satement
-    
-*/
+eventually adapt it for longer use and potentially automating it to database or csv
+***************************************************************************************/
 
-#include <MKRGSM.h>
-#include "arduino_secrets.h"
-#include <string.h>
 #include <string>
-#include <GSM.h>
-#include <iostream>
-#include "functions.ino"
+#include <MKRGSM.h>
+#include <iostream>    
+//function reminders
+//available (): checks sms messages are on sim card, returns quantity of characters as an integer - SMS.available()
+//remoteNumber(): retrieves phone # from incoming message and stores it in array - SMS.remoteNumber(number, size)
+//read(): reads byte from message - SMS.read()
+//write(): write a character(val) to message - SMS.write(val)
+//print(): writes char array as message - SMS.print(message)
+//flush(): clears modem memory of sent messages - SMS.flush()
 
-//  Please  enter  your  sensitive  data  in  the  Secret  tab  or  arduino_secrets.h
-GSM  gsmAccess;
-GSM_SMS  sms;
-//  Array  to  hold  the  number  a  SMS  is  retrieved  from
-
-
-//  PIN  Number
-const char  PINNUMBER[]  =  secret_pin_number;
-const int  trigPin  =  14;
-const int  echoPin  =  13;
-int counter = 0;
+#define echoPin 13
+#define trigPin 14
+#define smsCharMax 160 //max message size
 
 
-void  setup()  {
 
-    pinMode(trigPin,  OUTPUT);  //  Sets  the  trigPin  as  an  Output
-    pinMode(echoPin,  INPUT);  //  Sets  the  echoPin  as  an  Input
+GSM gsmAccess;
+GSM_SMS sms;
 
+char PINNUMBER[10] = secretpinnumber; //public mobile sim card pin
+
+//stole code from sms_numer.ino
+void setup(){
     //  initialize  serial  communications  and  wait  for  port  to  open:
     Serial.begin(9600);
 
@@ -80,50 +58,92 @@ void  setup()  {
     Serial.println("GSM  initialized");
 }
 
-void  loop()  {
-    string str_msg = "";
+void loop() {
+
+  pinMode(echoPin, INPUT);
+  pinMode(trigPin, OUTPUT);
+
+  //store number in other file or something
+  char remoteNumber[20]; 
+  char incomingArray[smsCharMax];
+
+  //check correct boot/start sequence
+  //check if a message has been received
+  if(sms.available()){
+
+    sms.remoteNumber(remoteNumber,  20);
+    Serial.println("Received Number: ");
+    Serial.println(remoteNumber);
+
+    int arrayCount = 0;
     char c;
-    char  remoteNumber[20];
-    char  textMSG[100];
 
-    //if  in  service,  gets  the  number
-    if  (sms.available())  {
-        //  Get  remote  number
-        sms.remoteNumber(remoteNumber,  20);
-        Serial.println("Received Number: ");
-        Serial.println(remoteNumber);
-        //c = sms.read(); 
-
-    //reads  the  text  message
-        while (((c = sms.read()) != -1) && counter < 11)  {
-            textMSG[counter]  =  c;
-            Serial.println(c);
-            counter++;
-        }
-        //deletes actual sms to keep memory from filling up
-        sms.flush();
-        textMSG[counter]  =  '\0';
-        Serial.println("\n MESSAGE READ");
-        sms.beginSMS(remoteNumber);
-
-        //if the message sent is GIVEMEVALUE, then it will record the ultrasonic data and send an average
-        if  (strcmp(textMSG,  "GIVEMEVALUE")  ==  0)  {
-            int  average_distance;
-            //  Ultrasonic  sensor  distance  measurement  loop
-            Serial.println("Measuring  distance...");
-
-            average_distance  =  functions.record_ultrasonic_values();
-
-            Serial.print("avg  value:  ");
-            Serial.println(average_distance);
-
-            sms.print("Distance  measurement  complete:");
-            sms.print(average_distance);
-
-        }  else  {
-            //  Send  the  regular  message
-            sms.print("Couldn't  Calculate  distance");
-        }
-        sms.endSMS();
+    while(arrayCount < smsCharMax){
+      c = sms.read();
+      if (std::isalnum(c)) {
+        incomingArray[arrayCount] = c;
+        arrayCount++;
+      } else {
+        Serial.println("IS NOT ALPHANUMERIC");
+        break;
+      }
+      incomingArray[arrayCount] = '\0';
     }
+    
+    if(strcmp(incomingArray,"IWANTWATER") == 0){
+
+      sms.beginSMS(remoteNumber);
+
+      Serial.print("MESSAGE_MATCH");
+
+      int distance = distanceMeasure();
+      sms.print("Gauge is reading: ");
+      sms.print(distance);
+      sms.print("\n");
+
+      Serial.println("REACHED Valid SMS");
+
+    } else {    //prints error message and exits loop if arrays do not match
+    sms.beginSMS(remoteNumber);
+      Serial.println("MESSAGE_DOESNT_MATCH");
+      sms.print("INVALID MESSAGE RECEIVED");
+    }
+    sms.print("Reading has Finished");
+    sms.endSMS();
+    Serial.print("\nMSG_SENT\n");
+    /*
+    sms.flush();
+    Serial.println("passed sms.flush");
+    */
+  }
+}
+
+int distanceMeasure (){
+  long  duration;
+  int  distance;
+  int  summed_distance  =  0;
+  int  avg_distance;
+  int  count  =  0;
+
+  while  (count  <  50)  {
+          digitalWrite(trigPin,  LOW);
+          delayMicroseconds(2);
+          digitalWrite(trigPin,  HIGH);
+          delayMicroseconds(10);
+          digitalWrite(trigPin,  LOW);
+
+          duration  =  pulseIn(echoPin,  HIGH);
+          distance  =  duration  *  0.034  /  2;
+          summed_distance  +=  distance;
+          Serial.print("Count: ");
+          Serial.print(count);
+          Serial.print("  Distance:  ");
+          Serial.print(distance);
+          Serial.print("  Summed  distance:  ");
+          Serial.println(summed_distance);
+       
+          count++;
+      }
+      avg_distance  =  summed_distance  /  count;
+      return  avg_distance;
 }
