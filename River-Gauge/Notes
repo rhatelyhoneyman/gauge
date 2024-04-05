@@ -1,0 +1,95 @@
+How to do this
+-----------------------------------------------------------------
+Sensors
+-----------------------------------------------------------------
+different options
+    Ultrasonic sensor - may have trouble detecting turbid water
+    photoelectric sensor - range may be too small
+    camera - probably not realiable without image detection which sounds very difficult
+    stick gauge - boring and can just use rocks, looking for realtime solution
+    shaft encoders - not super realistic wayyyy too much infrastructure
+    pressure gauges - lots of infrstructure, not cheap
+    pressure sensor - its underwater, electronics would be wack,
+    Radar sensors - seems reasonable, waves may bounce off water
+    water flow sensor - only works with pipes? also underwater which is a pain
+-----------------------------------------------------------------
+From ChatGPT
+-----------------------------------------------------------------
+Ultrasonic sensors
+Ultrasonic sensors emit sound waves and measure the time it takes for the waves to bounce off the water surface and return. This data can be used to calculate the water level.
+
+Pressure Transducers:
+Pressure transducers are submerged in the water, and they measure the pressure exerted by the water column. From the pressure, you can calculate the water level.
+
+Radar Sensors:
+Radar sensors use microwave signals to determine the distance to the water surface. They are often more accurate and suitable for larger rivers.
+
+Doppler Flow Meters:
+Doppler flow meters measure the velocity of particles in the water, which can be used to estimate the volumetric flow rate.
+
+Electromagnetic Flow Meters:
+Electromagnetic flow meters are used to directly measure the flow rate of conductive fluids, making them suitable for accurate flow measurements.
+
+Acoustic Doppler Current Profilers (ADCP):
+ADCPs are commonly used for measuring water flow in rivers and streams. They can provide velocity profiles at different depths, allowing for more accurate flow calculations.
+
+Water Level Loggers:
+Water level loggers continuously record water levels over time. They are usually paired with a pressure sensor and data logger for data collection.
+
+Telemetry and Data logger:
+You'll need a data logger to record sensor data and a telemetry system to transmit the data in real-time to a central server. This can be done using satellite, cellular, or radio 
+communication.
+
+Power Supply
+Ensure you have a reliable power supply for your sensor and telemetry system. Solar panels with battery backup are often used in remote locations.
+
+Data Processing and Visualization:
+Set up a system for data processing, storage, and visualization. This could involve using a dedicated software system or a cloud-based solution.
+
+Protection and Enclosure:
+Your sensors, data logger, and telemetry equipment will need protective enclosures to shield them from the elements and ensure long-term operation.
+
+Maintenance and Calibration:
+Regular maintenance and calibration of your sensors are critical to ensure accurate and reliable data.
+-----------------------------------------------------------------
+Currently Ultrasonic seems like the way to go
+
+    Setup in trees or bridges or cliffs, slightly sheltered, above/away from the river, even if it was flooding, which gives some freedom for design shape and size. Should be able to be situated in an area with easy maintenance accessibility
+
+Pros
+    Cheap
+    Non-contact
+    Fairly easy and good setup
+Cons
+    Could malfunction if exposed to elements
+    If water was too BROWN
+-----------------------------------------------------------------
+Microcontroller
+-----------------------------------------------------------------
+Definitely Arduino due to user documentation for hardware and software
+-----------------------------------------------------------------
+Power
+Batteries
+Powersupply connection
+Solar Panel
+Research but most likely just use batteries and potential upgrade to solar
+-----------------------------------------------------------------
+Data Transmission
+-----------------------------------------------------------------
+Wired
+Location for sensor is most likely too remote to have access to non-wireless modes of data transmission
+Wireless
+LoRwan
+    seems complicated and maybe not long range enough
+WIFI
+    not long range enough for most locations that we want to put the sensor at
+Bluetooth
+    Too short range
+    Possibility for arduino board w/ sensors that connects via bluetooth to a phone, which sends data
+        much larger power consumption compared to using MKR 1400 or board w/ gsm/gprs shield
+Cellular
+    Use a 
+-----------------------------------------------------------------
+Data Processing
+python
+-----------------------------------------------------------------
