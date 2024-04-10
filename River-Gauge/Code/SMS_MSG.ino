@@ -1,11 +1,10 @@
-
 /*******************************TODO***************************************************
 Error handling
 go over it and reformat code
 saying if message is invalid or too long
 sms flush / board memeory/ cache wiping (or if that even needs to happen)
 figure error correction of ultrasonic reading to make sure its accurate/consistent
-
+test test
 eventually adapt it for longer use and potentially automating it to database or csv
 ***************************************************************************************/
 
