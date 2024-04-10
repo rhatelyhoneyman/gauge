@@ -131,5 +131,5 @@ int distanceMeasure (){
 void onIoTSync(){
 //initialize distance variable (same name as thing)
 nameThing = distanceMeasure(); or //nameThing.distanceMeasure(); but not 100% sure
-Serial.println("Arduino synced to IoT Cloud"); //debug
+Serial.println("Arduino synced to IoT Cloud"); //debug test
 }
