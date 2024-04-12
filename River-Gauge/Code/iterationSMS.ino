@@ -50,8 +50,11 @@ void setup(){
         }
     }
     initProperties(); //defined in thingProperties.h
+    
     ArduinoCloud.begin(ArduinoIoTPreferredConnection); //connects to Arduino Cloud
+    
     ArduinoCloud.addCallback(ArduinoIoTCloudEvent::SYNC, onIoTSync); //Initialize cloud variables
+    
     //debugging function, not required, set level up to 4 for "more granular information"
     setDebugMessageLevel(2);
     ArduinoCloud.printDebugInfo();
@@ -94,8 +97,6 @@ void loop() {
       sms.print("Gauge is reading: ");
       sms.print(distance);
       sms.print("\n");
-
-      Serial.println("REACHED Valid SMS");
 
     } else {    //prints error message and exits loop if arrays do not match
     sms.beginSMS(remoteNumber);
