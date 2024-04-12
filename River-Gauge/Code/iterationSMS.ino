@@ -8,6 +8,7 @@ create thing (cloud variable)
 -use code structure below with board plugged in
 -thingProperties.h is created with thing, network info, and defines initProperties()
 -sample code: https://forum.arduino.cc/t/initialize-properties-on-arduino-power-up/664152/2
+-https://github.com/arduino-libraries/ArduinoIoTCloud - source code for Arduino Cloud
 figure error correction of ultrasonic reading to make sure its accurate/consistent
 eventually adapt it for longer use and potentially automating it to database or csv
 ***************************************************************************************/
